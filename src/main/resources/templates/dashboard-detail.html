@@ -7,7 +7,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; }
         .header {
-            background: #1a73e8;
+            background: #0078D4;
             color: white;
             padding: 20px 32px;
             display: flex;
@@ -34,9 +34,17 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.08);
             margin-bottom: 24px;
         }
-        .card-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 16px; }
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0078D4;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
         .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-        .info-item .key { font-size: 12px; color: #999; margin-bottom: 4px; }
+        .info-item .key { font-size: 11px; color: #999; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
         .info-item .value { font-size: 14px; color: #333; font-weight: 500; }
         .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1a1a1a; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
@@ -45,7 +53,7 @@
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #f8f9ff; }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .badge-blue { background: #e8f0fe; color: #1a73e8; }
+        .badge-blue { background: #e8f0fe; color: #0078D4; }
         .badge-gray { background: #f1f3f4; color: #666; }
         .search-box {
             width: 100%;
@@ -56,8 +64,100 @@
             margin-bottom: 16px;
             outline: none;
         }
-        .search-box:focus { border-color: #1a73e8; }
+        .search-box:focus { border-color: #0078D4; }
         .no-info { color: #999; font-style: italic; }
+
+        /* Remote Management */
+        .mgmt-section {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .mgmt-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0078D4;
+            letter-spacing: 0.08em;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+        .mgmt-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .cmd-btn {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .cmd-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .cmd-btn:active { transform: translateY(0); }
+        .btn-lock    { background: #0078D4; color: white; }
+        .btn-camera-off { background: #605E5C; color: white; }
+        .btn-camera-on  { background: #107C10; color: white; }
+        .btn-password   { background: #FF8C00; color: white; }
+        .btn-wipe       { background: #D13438; color: white; }
+
+        .cmd-status {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: none;
+        }
+        .cmd-status.success { background: #DFF6DD; color: #107C10; display: block; }
+        .cmd-status.error   { background: #FDE7E9; color: #D13438; display: block; }
+
+        /* Confirm Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .modal h3 { font-size: 18px; color: #D13438; margin-bottom: 10px; }
+        .modal p { font-size: 14px; color: #555; margin-bottom: 20px; line-height: 1.5; }
+        .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-cancel {
+            padding: 8px 18px;
+            background: #f3f3f3;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .modal-confirm {
+            padding: 8px 18px;
+            background: #D13438;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -74,7 +174,7 @@
 
     <!-- Device Info Card -->
     <div class="card">
-        <div class="card-title">📱 Device Information</div>
+        <div class="card-title">📱 DEVICE INFORMATION</div>
         <div th:if="${deviceInfo != null}" class="info-grid">
             <div class="info-item">
                 <div class="key">Model</div>
@@ -106,6 +206,29 @@
             </div>
         </div>
         <div th:if="${deviceInfo == null}" class="no-info">No device info collected yet.</div>
+
+        <!-- Remote Management -->
+        <div class="mgmt-section">
+            <div class="mgmt-title">🛡️ REMOTE MANAGEMENT</div>
+            <div class="mgmt-grid">
+                <button class="cmd-btn btn-lock" onclick="sendCommand('LOCK')">
+                    🔒 Lock Device
+                </button>
+                <button class="cmd-btn btn-camera-off" onclick="sendCommand('DISABLE_CAMERA')">
+                    📷 Disable Camera
+                </button>
+                <button class="cmd-btn btn-camera-on" onclick="sendCommand('ENABLE_CAMERA')">
+                    📷 Enable Camera
+                </button>
+                <button class="cmd-btn btn-password" onclick="sendCommand('RESET_PASSWORD')">
+                    🔑 Reset Password
+                </button>
+                <button class="cmd-btn btn-wipe" onclick="confirmWipe()">
+                    ⚠️ Wipe Device
+                </button>
+            </div>
+            <div id="cmdStatus" class="cmd-status"></div>
+        </div>
     </div>
 
     <!-- App Inventory -->
@@ -142,13 +265,53 @@
     </table>
 </div>
 
-<script>
+<!-- Wipe Confirmation Modal -->
+<div class="modal-overlay" id="wipeModal">
+    <div class="modal">
+        <h3>⚠️ Wipe Device</h3>
+        <p>This will <strong>factory reset</strong> the device and permanently delete all data. This action cannot be undone.</p>
+        <div class="modal-btns">
+            <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+            <button class="modal-confirm" onclick="sendCommand('WIPE')">Wipe Device</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const deviceUuid = /*[[${device.deviceUuid}]]*/ '';
+
+    function sendCommand(cmd) {
+        closeModal();
+        fetch('/api/commands/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceUuid: deviceUuid, command: cmd })
+        })
+            .then(r => r.json())
+            .then(() => showStatus('✔ Command sent: ' + cmd + ' — device will execute on next sync', 'success'))
+            .catch(() => showStatus('✘ Failed to send command. Try again.', 'error'));
+    }
+
+    function confirmWipe() {
+        document.getElementById('wipeModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('wipeModal').classList.remove('active');
+    }
+
+    function showStatus(msg, type) {
+        const el = document.getElementById('cmdStatus');
+        el.textContent = msg;
+        el.className = 'cmd-status ' + type;
+        setTimeout(() => { el.className = 'cmd-status'; }, 4000);
+    }
+
     function filterApps() {
         const input = document.getElementById('searchBox').value.toLowerCase();
         const rows = document.querySelectorAll('#appsTable tbody tr');
         rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = text.includes(input) ? '' : 'none';
+            row.style.display = row.textContent.toLowerCase().includes(input) ? '' : 'none';
         });
     }
 </script>
