@@ -19,6 +19,9 @@ class AppInventoryController(
         val device = deviceRepository.findByDeviceUuid(request.deviceUuid)
             ?: return ResponseEntity.status(404).body(mapOf("error" to "Device not found. Enroll first."))
 
+        // Delete existing inventory before saving fresh one
+        appInventoryRepository.deleteByDevice(device)
+
         val apps = request.apps.map {
             AppInventory(
                 device = device,
@@ -31,6 +34,9 @@ class AppInventoryController(
             )
         }
         appInventoryRepository.saveAll(apps)
-        return ResponseEntity.ok(mapOf("status" to "app inventory saved", "count" to apps.size.toString()))
+        return ResponseEntity.ok(mapOf(
+            "status" to "app inventory saved",
+            "count" to apps.size.toString()
+        ))
     }
 }
