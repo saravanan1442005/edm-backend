@@ -105,6 +105,7 @@
         .btn-camera-on  { background: #107C10; color: white; }
         .btn-password   { background: #FF8C00; color: white; }
         .btn-wipe       { background: #D13438; color: white; }
+        .btn-delete-device { background: #B42318; color: white; }
 
         .cmd-status {
             margin-top: 12px;
@@ -226,6 +227,9 @@
                 <button class="cmd-btn btn-wipe" onclick="confirmWipe()">
                     ⚠️ Wipe Device
                 </button>
+                <button class="cmd-btn btn-delete-device" onclick="deleteCurrentDevice(this)">
+                    🗑️ Delete Device
+                </button>
             </div>
             <div id="cmdStatus" class="cmd-status"></div>
         </div>
@@ -279,6 +283,7 @@
 
 <script th:inline="javascript">
     const deviceUuid = /*[[${device.deviceUuid}]]*/ '';
+    const deviceId = /*[[${device.id}]]*/ '';
 
     function sendCommand(cmd) {
         closeModal();
@@ -313,6 +318,47 @@
         rows.forEach(row => {
             row.style.display = row.textContent.toLowerCase().includes(input) ? '' : 'none';
         });
+    }
+
+    async function deleteCurrentDevice(button) {
+        const confirmed = window.confirm('Delete this device and all collected data? This cannot be undone.');
+        if (!confirmed) {
+            return;
+        }
+
+        button.disabled = true;
+        const oldText = button.textContent;
+        button.textContent = 'Deleting...';
+
+        try {
+            let response = await fetch('/api/admin/devices/' + deviceId, { method: 'DELETE' });
+
+            if (!response.ok && (response.status === 403 || response.status === 405 || response.status === 501)) {
+                response = await fetch('/api/admin/devices/' + deviceId + '/delete', { method: 'POST' });
+            }
+
+            if (!response.ok) {
+                let reason = 'Failed to delete device';
+                try {
+                    const body = await response.json();
+                    if (body && body.message) {
+                        reason = body.message;
+                    }
+                } catch (ignored) {
+                    // Keep default fallback message.
+                }
+                throw new Error(reason);
+            }
+
+            showStatus('✔ Device deleted. Redirecting to dashboard...', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 700);
+        } catch (error) {
+            showStatus('✘ Unable to delete device: ' + (error?.message || 'Please try again.'), 'error');
+            button.disabled = false;
+            button.textContent = oldText;
+        }
     }
 </script>
 

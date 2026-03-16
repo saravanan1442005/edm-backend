@@ -280,33 +280,6 @@
             box-shadow: 0 5px 10px rgba(54, 84, 145, 0.2);
         }
 
-        .action-group {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-delete {
-            border: 1px solid #e6b3b8;
-            background: #fff2f3;
-            color: #8e1f2b;
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.12s ease;
-        }
-
-        .btn-delete:hover {
-            background: #ffe5e8;
-            border-color: #db8f99;
-        }
-
-        .btn-delete:disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
-        }
 
         .empty {
             text-align: center;
@@ -434,7 +407,6 @@
                 </thead>
                 <tbody id="devicesTableBody">
                 <tr th:each="device : ${devices}" class="device-row"
-                    th:data-device-id="${device.id}"
                     th:data-search="${device.deviceUuid + ' ' + device.enrollmentToken}"
                     th:data-status="${device.status}">
                     <td class="mono" th:text="${device.deviceUuid}"></td>
@@ -453,10 +425,7 @@
                     </td>
                     <td th:text="${#temporals.format(device.enrolledAt, 'dd MMM yyyy HH:mm')}"></td>
                     <td>
-                        <span class="action-group">
-                            <a class="btn-view" th:href="@{/dashboard/device/{id}(id=${device.id})}">Open Profile</a>
-                            <button type="button" class="btn-delete" onclick="deleteDevice(this)">Delete</button>
-                        </span>
+                        <a class="btn-view" th:href="@{/dashboard/device/{id}(id=${device.id})}">Open Profile</a>
                     </td>
                 </tr>
                 </tbody>
@@ -528,65 +497,6 @@
             setTimeout(() => {
                 button.textContent = 'Copy';
             }, 900);
-        }
-    }
-
-    async function deleteDevice(button) {
-        const row = button.closest('tr');
-        const deviceId = row.getAttribute('data-device-id');
-
-        if (!deviceId) {
-            alert('Missing device identifier.');
-            return;
-        }
-
-        const confirmed = window.confirm('Delete this device and all collected info/commands? This cannot be undone.');
-        if (!confirmed) {
-            return;
-        }
-
-        button.disabled = true;
-        const previousText = button.textContent;
-        button.textContent = 'Deleting...';
-
-        try {
-            let response = await fetch('/api/admin/devices/' + deviceId, {
-                method: 'DELETE'
-            });
-
-            // Fallback for environments that block DELETE requests.
-            if (!response.ok && (response.status === 403 || response.status === 405 || response.status === 501)) {
-                response = await fetch('/api/admin/devices/' + deviceId + '/delete', {
-                    method: 'POST'
-                });
-            }
-
-            if (!response.ok) {
-                let reason = 'Failed to delete device';
-                try {
-                    const body = await response.json();
-                    if (body && body.message) {
-                        reason = body.message;
-                    }
-                } catch (ignored) {
-                    // Keep default reason when non-JSON response is returned.
-                }
-                throw new Error(reason);
-            }
-
-            row.remove();
-            filterRows();
-
-            const totalEl = document.querySelectorAll('.stat-value')[0];
-            if (totalEl) {
-                const current = Number(totalEl.textContent || '0');
-                totalEl.textContent = String(Math.max(0, current - 1));
-            }
-        } catch (error) {
-            alert('Unable to delete device: ' + (error?.message || 'Please try again.'));
-            button.disabled = false;
-            button.textContent = previousText;
-            return;
         }
     }
 
