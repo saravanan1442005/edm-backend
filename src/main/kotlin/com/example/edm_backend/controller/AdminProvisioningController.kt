@@ -115,6 +115,29 @@ class AdminProvisioningController(
         )
     }
 
+    @PostMapping("/provisioning/config-payload")
+    fun createConfigProvisioningPayload(
+        @Valid @RequestBody request: ProvisioningRequest,
+        servletRequest: HttpServletRequest
+    ): ResponseEntity<Map<String, Any?>> {
+        val issued = enrollmentTokenService.createToken(
+            maxUses = request.maxUses,
+            ttlHours = request.ttlHours,
+            notes = request.notes
+        )
+
+        val enrollmentUrl = request.enrollmentUrl ?: defaultEnrollUrl(servletRequest)
+        return ResponseEntity.status(201).body(
+            mapOf(
+                "enrollmentUrl" to enrollmentUrl,
+                "enrollmentToken" to issued.rawToken,
+                "enrollmentSource" to EnrollmentSource.CONFIG_PUSH.name,
+                "tokenId" to issued.token.id.toString(),
+                "tokenHint" to issued.token.tokenHint
+            )
+        )
+    }
+
     @PostMapping("/provisioning/qr")
     fun createProvisioningQr(
         @Valid @RequestBody request: ProvisioningRequest,

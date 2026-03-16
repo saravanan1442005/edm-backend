@@ -1,5 +1,6 @@
 package com.example.edm_backend.controller
 
+import com.example.edm_backend.entity.DeviceStatus
 import com.example.edm_backend.repository.AppInventoryRepository
 import com.example.edm_backend.repository.DeviceInfoRepository
 import com.example.edm_backend.repository.DeviceRepository
@@ -21,8 +22,10 @@ class DashboardController(
     @GetMapping
     fun dashboard(model: Model): String {
         val devices = deviceRepository.findAll()
+        val inactiveDevices = devices.count { it.status == DeviceStatus.INACTIVE }
         model.addAttribute("devices", devices)
         model.addAttribute("totalDevices", devices.size)
+        model.addAttribute("inactiveDevices", inactiveDevices)
         return "dashboard"
     }
 

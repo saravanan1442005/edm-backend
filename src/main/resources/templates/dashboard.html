@@ -389,11 +389,11 @@
             </div>
         </div>
 
-        <div th:if="${devices.empty}" class="empty">
+        <div th:if="${#lists.isEmpty(devices)}" class="empty">
             No devices enrolled yet. Use the Android client to enroll a device and refresh this page.
         </div>
 
-        <div class="table-wrap" th:if="${!devices.empty}">
+        <div class="table-wrap" th:if="${!#lists.isEmpty(devices)}">
             <table>
                 <thead>
                 <tr>
@@ -431,7 +431,7 @@
             </table>
         </div>
 
-        <div class="table-foot" th:if="${!devices.empty}">
+        <div class="table-foot" th:if="${!#lists.isEmpty(devices)}">
             <span id="visibleCount">Showing 0 devices</span>
             <span class="notice">Tokens are masked by default for safer shoulder-surfing protection.</span>
         </div>
