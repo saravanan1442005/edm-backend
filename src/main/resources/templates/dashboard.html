@@ -550,12 +550,28 @@
         button.textContent = 'Deleting...';
 
         try {
-            const response = await fetch('/api/admin/devices/' + deviceId, {
+            let response = await fetch('/api/admin/devices/' + deviceId, {
                 method: 'DELETE'
             });
 
+            // Fallback for environments that block DELETE requests.
+            if (!response.ok && (response.status === 403 || response.status === 405 || response.status === 501)) {
+                response = await fetch('/api/admin/devices/' + deviceId + '/delete', {
+                    method: 'POST'
+                });
+            }
+
             if (!response.ok) {
-                throw new Error('Failed to delete device');
+                let reason = 'Failed to delete device';
+                try {
+                    const body = await response.json();
+                    if (body && body.message) {
+                        reason = body.message;
+                    }
+                } catch (ignored) {
+                    // Keep default reason when non-JSON response is returned.
+                }
+                throw new Error(reason);
             }
 
             row.remove();
@@ -567,7 +583,7 @@
                 totalEl.textContent = String(Math.max(0, current - 1));
             }
         } catch (error) {
-            alert('Unable to delete device. Please try again.');
+            alert('Unable to delete device: ' + (error?.message || 'Please try again.'));
             button.disabled = false;
             button.textContent = previousText;
             return;
