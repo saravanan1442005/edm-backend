@@ -18,6 +18,11 @@ data class Device(
     @Column(nullable = false)
     val enrollmentToken: String,
 
+    val enrollmentTokenId: UUID? = null,
+
+    @Enumerated(EnumType.STRING)
+    val enrollmentSource: EnrollmentSource = EnrollmentSource.MANUAL,
+
     val enrolledAt: LocalDateTime = LocalDateTime.now(),
 
     @Enumerated(EnumType.STRING)

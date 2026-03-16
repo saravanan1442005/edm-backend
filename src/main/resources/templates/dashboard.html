@@ -2,122 +2,490 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDM Dashboard</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+        :root {
+            --bg: #f7f7f3;
+            --ink: #18181b;
+            --muted: #6b7280;
+            --panel: #ffffff;
+            --line: #e8e7df;
+            --accent: #0f766e;
+            --accent-soft: #d9f5f2;
+            --status: #0b8f6f;
+            --chip: #eef5ff;
+            --chip-text: #2454a4;
+            --danger: #aa2f39;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; }
-        .header {
-            background: #1a73e8;
-            color: white;
-            padding: 20px 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(1200px 500px at 85% -10%, #d2f4ee 0%, rgba(210, 244, 238, 0) 70%),
+                radial-gradient(900px 400px at 0% 0%, #fff4d8 0%, rgba(255, 244, 216, 0) 65%),
+                var(--bg);
+            min-height: 100vh;
         }
-        .header h1 { font-size: 22px; }
-        .header p { font-size: 13px; opacity: 0.8; }
-        .stats {
-            display: flex;
+
+        .page-shell {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 28px 20px 36px;
+        }
+
+        .hero {
+            background: linear-gradient(130deg, #0f766e 0%, #166c74 42%, #355f87 100%);
+            color: #fff;
+            border-radius: 24px;
+            padding: 26px;
+            display: grid;
+            grid-template-columns: 1fr auto;
             gap: 16px;
-            padding: 24px 32px;
+            box-shadow: 0 16px 40px rgba(22, 44, 76, 0.2);
+            animation: riseIn 0.5s ease-out;
         }
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px 28px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            min-width: 160px;
+
+        .hero h1 {
+            font-size: clamp(24px, 3vw, 34px);
+            letter-spacing: -0.02em;
         }
-        .stat-card .number { font-size: 36px; font-weight: 700; color: #1a73e8; }
-        .stat-card .label { font-size: 13px; color: #666; margin-top: 4px; }
-        .content { padding: 0 32px 32px; }
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #1a1a1a; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        th { background: #f8f9fa; padding: 12px 16px; text-align: left; font-size: 13px; color: #666; font-weight: 600; border-bottom: 1px solid #eee; }
-        td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: #333; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #f8f9ff; }
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
+
+        .hero p {
+            font-size: 14px;
+            opacity: 0.88;
+            margin-top: 8px;
+        }
+
+        .hero-count {
+            text-align: right;
+            align-self: center;
+        }
+
+        .hero-count .num {
+            font-size: clamp(36px, 5vw, 52px);
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .hero-count .label {
             font-size: 12px;
+            opacity: 0.85;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stats {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 16px;
+            min-height: 102px;
+            box-shadow: 0 6px 14px rgba(20, 20, 27, 0.05);
+            animation: riseIn 0.6s ease-out;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .stat-value {
+            margin-top: 10px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .card {
+            margin-top: 18px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 8px 18px rgba(24, 24, 27, 0.06);
+            overflow: hidden;
+        }
+
+        .card-head {
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .card-subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .search {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            min-width: 250px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        .status-filter {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--ink);
+            background: #fff;
+            outline: none;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid var(--line);
+            background: #fbfbf9;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background-color 0.16s ease;
+        }
+
+        tbody tr:hover {
+            background: #f9fcfb;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #1f2937;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--accent-soft);
+            color: var(--status);
+        }
+
+        .token {
+            display: inline-block;
+            max-width: 210px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        .token-actions {
+            display: inline-flex;
+            gap: 6px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .btn-min {
+            border: 1px solid #d7d6cc;
+            background: #fff;
+            color: #3b3b45;
+            border-radius: 7px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-min:hover {
+            border-color: #c2c0b3;
+            background: #f8f8f4;
+        }
+
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: none;
+            background: var(--chip);
+            color: var(--chip-text);
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .btn-view:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(54, 84, 145, 0.2);
+        }
+
+        .empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 44px 20px 52px;
+            font-size: 15px;
+        }
+
+        .table-foot {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: #fcfcfa;
+        }
+
+        .notice {
+            color: var(--danger);
             font-weight: 600;
         }
-        .badge-green { background: #e6f4ea; color: #137333; }
-        .btn-view {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
+
+        @keyframes riseIn {
+            from { transform: translateY(8px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-        .btn-view:hover { background: #1557b0; }
-        .empty { text-align: center; padding: 48px; color: #999; }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+            .hero-count {
+                text-align: left;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            .card-head {
+                grid-template-columns: 1fr;
+            }
+            .search {
+                min-width: 100%;
+            }
+            .toolbar {
+                justify-content: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div>
-        <h1>🔐 EDM Dashboard</h1>
-        <p>Android Enterprise Device Management</p>
-    </div>
-    <div style="text-align:right;">
-        <div style="font-size:28px; font-weight:700;" th:text="${totalDevices}">0</div>
-        <div style="font-size:13px; opacity:0.8;">Enrolled Devices</div>
-    </div>
-</div>
-
-<div class="stats">
-    <div class="stat-card">
-        <div class="number" th:text="${totalDevices}">0</div>
-        <div class="label">Total Devices</div>
-    </div>
-    <div class="stat-card">
-        <div class="number" style="color:#34a853;">
-            <span th:text="${totalDevices}">0</span>
+<div class="page-shell">
+    <section class="hero">
+        <div>
+            <h1>EDM Command Center</h1>
+            <p>Monitor enrollment activity and open each device profile for command operations.</p>
         </div>
-        <div class="label">Active Enrollments</div>
-    </div>
+        <div class="hero-count">
+            <div class="num" th:text="${totalDevices}">0</div>
+            <div class="label">Managed Devices</div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <article class="stat-card">
+            <div class="stat-label">Total Devices</div>
+            <div class="stat-value" th:text="${totalDevices}">0</div>
+        </article>
+        <article class="stat-card">
+            <div class="stat-label">Active Enrollments</div>
+            <div class="stat-value" th:text="${totalDevices}">0</div>
+        </article>
+        <article class="stat-card">
+            <div class="stat-label">Dashboard Access</div>
+            <div class="stat-value" style="font-size:22px; margin-top:14px;">Password Protected</div>
+        </article>
+    </section>
+
+    <section class="card">
+        <div class="card-head">
+            <div>
+                <div class="card-title">Enrolled Devices</div>
+                <div class="card-subtitle">Search by device UUID or token, filter by status, and open details quickly.</div>
+            </div>
+            <div class="toolbar">
+                <input id="searchInput" class="search" type="text" placeholder="Search device UUID or token" oninput="filterRows()">
+                <select id="statusFilter" class="status-filter" onchange="filterRows()">
+                    <option value="ALL">All statuses</option>
+                    <option value="ENROLLED">ENROLLED</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+            </div>
+        </div>
+
+        <div th:if="${devices.empty}" class="empty">
+            No devices enrolled yet. Use the Android client to enroll a device and refresh this page.
+        </div>
+
+        <div class="table-wrap" th:if="${!devices.empty}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Device UUID</th>
+                    <th>Enrollment Token</th>
+                    <th>Status</th>
+                    <th>Enrolled At</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody id="devicesTableBody">
+                <tr th:each="device : ${devices}" class="device-row"
+                    th:attr="data-search=${device.deviceUuid + ' ' + device.enrollmentToken},data-status=${device.status}">
+                    <td class="mono" th:text="${device.deviceUuid}"></td>
+                    <td>
+                        <span class="token mono"
+                              th:text="${#strings.substring(device.enrollmentToken, 0, T(java.lang.Math).min(6, device.enrollmentToken.length())) + '******'}"
+                              th:attr="data-token=${device.enrollmentToken}">
+                        </span>
+                        <span class="token-actions">
+                            <button type="button" class="btn-min" onclick="toggleToken(this)">Show</button>
+                            <button type="button" class="btn-min" onclick="copyToken(this)">Copy</button>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="chip" th:text="${device.status}">ENROLLED</span>
+                    </td>
+                    <td th:text="${#temporals.format(device.enrolledAt, 'dd MMM yyyy HH:mm')}"></td>
+                    <td>
+                        <a class="btn-view" th:href="@{/dashboard/device/{id}(id=${device.id})}">Open Profile</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-foot" th:if="${!devices.empty}">
+            <span id="visibleCount">Showing 0 devices</span>
+            <span class="notice">Tokens are masked by default for safer shoulder-surfing protection.</span>
+        </div>
+    </section>
 </div>
 
-<div class="content">
-    <div class="section-title">Enrolled Devices</div>
+<script>
+    function filterRows() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.device-row');
+        let visible = 0;
 
-    <div th:if="${devices.empty}" class="empty">
-        No devices enrolled yet. Use the Android app to enroll a device.
-    </div>
+        rows.forEach((row) => {
+            const searchable = (row.getAttribute('data-search') || '').toLowerCase();
+            const rowStatus = row.getAttribute('data-status');
 
-    <table th:if="${!devices.empty}">
-        <thead>
-        <tr>
-            <th>Device UUID</th>
-            <th>Enrollment Token</th>
-            <th>Status</th>
-            <th>Enrolled At</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="device : ${devices}">
-            <td th:text="${device.deviceUuid}"></td>
-            <td th:text="${device.enrollmentToken}"></td>
-            <td>
-                <span class="badge badge-green" th:text="${device.status}">ENROLLED</span>
-            </td>
-            <td th:text="${#temporals.format(device.enrolledAt, 'dd MMM yyyy HH:mm')}"></td>
-            <td>
-                <a class="btn-view" th:href="@{/dashboard/device/{id}(id=${device.id})}">View Details</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+            const matchesQuery = searchable.includes(query);
+            const matchesStatus = status === 'ALL' || rowStatus === status;
+            const show = matchesQuery && matchesStatus;
+
+            row.style.display = show ? '' : 'none';
+            if (show) {
+                visible += 1;
+            }
+        });
+
+        const countEl = document.getElementById('visibleCount');
+        if (countEl) {
+            countEl.textContent = 'Showing ' + visible + ' device' + (visible === 1 ? '' : 's');
+        }
+    }
+
+    function toggleToken(button) {
+        const tokenEl = button.closest('td').querySelector('.token');
+        const fullToken = tokenEl.getAttribute('data-token') || '';
+        const showing = button.textContent === 'Hide';
+
+        if (showing) {
+            tokenEl.textContent = fullToken.substring(0, Math.min(6, fullToken.length)) + '******';
+            button.textContent = 'Show';
+            return;
+        }
+
+        tokenEl.textContent = fullToken;
+        button.textContent = 'Hide';
+    }
+
+    async function copyToken(button) {
+        const tokenEl = button.closest('td').querySelector('.token');
+        const fullToken = tokenEl.getAttribute('data-token') || '';
+
+        try {
+            await navigator.clipboard.writeText(fullToken);
+            const previous = button.textContent;
+            button.textContent = 'Copied';
+            setTimeout(() => {
+                button.textContent = previous === 'Copied' ? 'Copy' : previous;
+            }, 900);
+        } catch (err) {
+            button.textContent = 'Failed';
+            setTimeout(() => {
+                button.textContent = 'Copy';
+            }, 900);
+        }
+    }
+
+    filterRows();
+</script>
 
 </body>
 </html>
