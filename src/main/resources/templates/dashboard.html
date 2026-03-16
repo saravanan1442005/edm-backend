@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -303,6 +303,18 @@
             font-weight: 600;
         }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
         @keyframes riseIn {
             from { transform: translateY(8px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -366,7 +378,9 @@
                 <div class="card-subtitle">Search by device UUID or token, filter by status, and open details quickly.</div>
             </div>
             <div class="toolbar">
+                <label class="sr-only" for="searchInput">Search devices</label>
                 <input id="searchInput" class="search" type="text" placeholder="Search device UUID or token" oninput="filterRows()">
+                <label class="sr-only" for="statusFilter">Filter by device status</label>
                 <select id="statusFilter" class="status-filter" onchange="filterRows()">
                     <option value="ALL">All statuses</option>
                     <option value="ENROLLED">ENROLLED</option>
@@ -392,12 +406,13 @@
                 </thead>
                 <tbody id="devicesTableBody">
                 <tr th:each="device : ${devices}" class="device-row"
-                    th:attr="data-search=${device.deviceUuid + ' ' + device.enrollmentToken},data-status=${device.status}">
+                    th:data-search="${device.deviceUuid + ' ' + device.enrollmentToken}"
+                    th:data-status="${device.status}">
                     <td class="mono" th:text="${device.deviceUuid}"></td>
                     <td>
                         <span class="token mono"
-                              th:text="${#strings.substring(device.enrollmentToken, 0, T(java.lang.Math).min(6, device.enrollmentToken.length())) + '******'}"
-                              th:attr="data-token=${device.enrollmentToken}">
+                              th:text="${#strings.length(device.enrollmentToken) > 6 ? #strings.substring(device.enrollmentToken, 0, 6) + '******' : device.enrollmentToken + '******'}"
+                              th:data-token="${device.enrollmentToken}">
                         </span>
                         <span class="token-actions">
                             <button type="button" class="btn-min" onclick="toggleToken(this)">Show</button>
