@@ -279,6 +279,18 @@
                             <input type="text" id="notes" class="form-control" placeholder="e.g. Employee Device, Store Kiosk">
                         </div>
                         <div class="form-group">
+                            <label class="form-label" for="apkUrl">APK Download URL (Required for Factory Reset)</label>
+                            <input type="url" id="apkUrl" class="form-control" placeholder="https://your-server.com/agent.apk">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="apkChecksum">APK Checksum (URL-Safe Base64 SHA-256)</label>
+                            <input type="text" id="apkChecksum" class="form-control" placeholder="Optional but recommended">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="adminComponent">Admin Component Name</label>
+                            <input type="text" id="adminComponent" class="form-control" value="com.example.edmagent/com.example.edmagent.DeviceAdminReceiver">
+                        </div>
+                        <div class="form-group">
                             <button type="submit" class="btn" style="width:100%; margin-bottom: 8px;">Generate QR Code</button>
                             <button type="button" class="btn btn-outline" style="width:100%;" onclick="generatePayload()">Generate Token / Configuration</button>
                         </div>
@@ -344,7 +356,10 @@
         const payload = {
             maxUses: parseInt(document.getElementById('maxUses').value) || 1,
             ttlHours: parseInt(document.getElementById('ttlHours').value) || 24,
-            notes: document.getElementById('notes').value
+            notes: document.getElementById('notes').value,
+            apkUrl: document.getElementById('apkUrl').value,
+            apkChecksum: document.getElementById('apkChecksum').value,
+            adminComponent: document.getElementById('adminComponent').value
         };
 
         const generateBtn = e.target.querySelector('button[type="submit"]');
@@ -387,7 +402,10 @@
         const payload = {
             maxUses: parseInt(document.getElementById('maxUses').value) || 1,
             ttlHours: parseInt(document.getElementById('ttlHours').value) || 24,
-            notes: document.getElementById('notes').value
+            notes: document.getElementById('notes').value,
+            apkUrl: document.getElementById('apkUrl').value,
+            apkChecksum: document.getElementById('apkChecksum').value,
+            adminComponent: document.getElementById('adminComponent').value
         };
 
         try {

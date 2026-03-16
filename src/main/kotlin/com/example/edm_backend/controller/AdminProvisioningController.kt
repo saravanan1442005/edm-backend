@@ -104,8 +104,12 @@ class AdminProvisioningController(
         )
 
         val enrollmentUrl = request.enrollmentUrl ?: defaultEnrollUrl(servletRequest)
-        return ResponseEntity.status(201).body(
-            mapOf(
+        val adminComponent = request.adminComponent ?: "com.example.edmagent/com.example.edmagent.DeviceAdminReceiver"
+
+        val payload = mutableMapOf<String, Any>(
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME" to adminComponent,
+            "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED" to true,
+            "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE" to mapOf(
                 "enrollmentUrl" to enrollmentUrl,
                 "enrollmentToken" to issued.rawToken,
                 "enrollmentSource" to EnrollmentSource.QR_SETUP.name,
@@ -113,6 +117,16 @@ class AdminProvisioningController(
                 "tokenHint" to issued.token.tokenHint
             )
         )
+
+        request.apkUrl?.takeIf { it.isNotBlank() }?.let {
+            payload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION"] = it
+        }
+
+        request.apkChecksum?.takeIf { it.isNotBlank() }?.let {
+            payload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = it
+        }
+
+        return ResponseEntity.status(201).body(payload)
     }
 
     @PostMapping("/provisioning/config-payload")
@@ -150,12 +164,27 @@ class AdminProvisioningController(
         )
 
         val enrollmentUrl = request.enrollmentUrl ?: defaultEnrollUrl(servletRequest)
-        val payload = mapOf(
-            "enrollmentUrl" to enrollmentUrl,
-            "enrollmentToken" to issued.rawToken,
-            "enrollmentSource" to EnrollmentSource.QR_SETUP.name,
-            "tokenId" to issued.token.id.toString()
+        val adminComponent = request.adminComponent ?: "com.example.edmagent/com.example.edmagent.DeviceAdminReceiver"
+
+        val payload = mutableMapOf<String, Any>(
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME" to adminComponent,
+            "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED" to true,
+            "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE" to mapOf(
+                "enrollmentUrl" to enrollmentUrl,
+                "enrollmentToken" to issued.rawToken,
+                "enrollmentSource" to EnrollmentSource.QR_SETUP.name,
+                "tokenId" to issued.token.id.toString(),
+                "tokenHint" to issued.token.tokenHint
+            )
         )
+
+        request.apkUrl?.takeIf { it.isNotBlank() }?.let {
+            payload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION"] = it
+        }
+
+        request.apkChecksum?.takeIf { it.isNotBlank() }?.let {
+            payload["android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM"] = it
+        }
 
         val qrText = objectMapper.writeValueAsString(payload)
         val matrix = MultiFormatWriter().encode(qrText, BarcodeFormat.QR_CODE, 420, 420)
