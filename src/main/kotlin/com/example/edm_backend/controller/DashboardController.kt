@@ -43,4 +43,9 @@ class DashboardController(
         model.addAttribute("totalApps", appInventory.size)
         return "dashboard-detail"
     }
+
+    @GetMapping("/provisioning")
+    fun provisioning(model: Model): String {
+        return "provisioning"
+    }
 }

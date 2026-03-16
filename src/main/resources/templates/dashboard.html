@@ -354,6 +354,9 @@
         <div class="hero-count">
             <div class="num" th:text="${totalDevices}">0</div>
             <div class="label">Managed Devices</div>
+            <a href="/dashboard/provisioning" style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.4); transition: all 0.2s;">
+                + QR Provisioning
+            </a>
         </div>
     </section>
 
@@ -412,12 +415,7 @@
                     <td class="mono" th:text="${device.deviceUuid}"></td>
                     <td>
                         <span class="token mono"
-                              th:text="${#strings.length(device.enrollmentToken) > 6 ? #strings.substring(device.enrollmentToken, 0, 6) + '******' : device.enrollmentToken + '******'}"
-                              th:data-token="${device.enrollmentToken}">
-                        </span>
-                        <span class="token-actions">
-                            <button type="button" class="btn-min" onclick="toggleToken(this)">Show</button>
-                            <button type="button" class="btn-min" onclick="copyToken(this)">Copy</button>
+                              th:text="${device.enrollmentToken}">
                         </span>
                     </td>
                     <td>
@@ -463,40 +461,6 @@
         const countEl = document.getElementById('visibleCount');
         if (countEl) {
             countEl.textContent = 'Showing ' + visible + ' device' + (visible === 1 ? '' : 's');
-        }
-    }
-
-    function toggleToken(button) {
-        const tokenEl = button.closest('td').querySelector('.token');
-        const fullToken = tokenEl.getAttribute('data-token') || '';
-        const showing = button.textContent === 'Hide';
-
-        if (showing) {
-            tokenEl.textContent = fullToken.substring(0, Math.min(6, fullToken.length)) + '******';
-            button.textContent = 'Show';
-            return;
-        }
-
-        tokenEl.textContent = fullToken;
-        button.textContent = 'Hide';
-    }
-
-    async function copyToken(button) {
-        const tokenEl = button.closest('td').querySelector('.token');
-        const fullToken = tokenEl.getAttribute('data-token') || '';
-
-        try {
-            await navigator.clipboard.writeText(fullToken);
-            const previous = button.textContent;
-            button.textContent = 'Copied';
-            setTimeout(() => {
-                button.textContent = previous === 'Copied' ? 'Copy' : previous;
-            }, 900);
-        } catch (err) {
-            button.textContent = 'Failed';
-            setTimeout(() => {
-                button.textContent = 'Copy';
-            }, 900);
         }
     }
 

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provisioning & Enrollment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+        :root {
+            --bg: #f7f7f3;
+            --ink: #18181b;
+            --muted: #6b7280;
+            --panel: #ffffff;
+            --line: #e8e7df;
+            --accent: #0f766e;
+            --accent-soft: #d9f5f2;
+            --status: #0b8f6f;
+            --chip: #eef5ff;
+            --chip-text: #2454a4;
+            --danger: #aa2f39;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(1200px 500px at 85% -10%, #d2f4ee 0%, rgba(210, 244, 238, 0) 70%),
+                radial-gradient(900px 400px at 0% 0%, #fff4d8 0%, rgba(255, 244, 216, 0) 65%),
+                var(--bg);
+            min-height: 100vh;
+        }
+
+        .page-shell {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 28px 20px 36px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .nav-back {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.15s ease;
+        }
+
+        .nav-back:hover {
+            color: var(--ink);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .page-desc {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 8px 18px rgba(24, 24, 27, 0.06);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-head {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--line);
+            background: #fbfbf9;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--ink);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #0d635c;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .btn-outline:hover {
+            background: #f7f7f3;
+            border-color: #d7d6cc;
+            transform: none;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            border: 2px dashed var(--line);
+            border-radius: 16px;
+            background: #fafafa;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-placeholder {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 250px;
+        }
+
+        .qr-image {
+            max-width: 100%;
+            height: auto;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .payload-box {
+            margin-top: 16px;
+            background: #18181b;
+            color: #e5e7eb;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .result-actions {
+            margin-top: 16px;
+            display: none;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pill {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        @media(max-width: 768px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-shell">
+    <div class="header">
+        <a href="/dashboard" class="nav-back">← Back to Dashboard</a>
+    </div>
+
+    <h1 class="page-title">Device Provisioning</h1>
+    <p class="page-desc">Generate QR Code or Token payloads to enroll devices securely. You can provision devices right after factory reset by scanning the QR code.</p>
+
+    <div class="card">
+        <div class="card-head">
+            <div class="card-icon">🔐</div>
+            <div class="card-title">Token Setup & QR Generation</div>
+        </div>
+        <div class="card-body">
+            <div class="layout-grid">
+                <!-- Form Side -->
+                <div>
+                    <form id="provisioningForm">
+                        <div class="form-group">
+                            <label class="form-label" for="maxUses">Max Uses</label>
+                            <input type="number" id="maxUses" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="ttlHours">Expires in (Hours)</label>
+                            <input type="number" id="ttlHours" class="form-control" value="24" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="notes">Notes / Device identifier (Optional)</label>
+                            <input type="text" id="notes" class="form-control" placeholder="e.g. Employee Device, Store Kiosk">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn" style="width:100%; margin-bottom: 8px;">Generate QR Code</button>
+                            <button type="button" class="btn btn-outline" style="width:100%;" onclick="generatePayload()">Generate Token / Configuration</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Result Side -->
+                <div>
+                    <div class="qr-container" id="qrContainer">
+                        <div class="qr-placeholder" id="qrPlaceholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; color: #a1a1aa">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <rect x="7" y="7" width="3" height="3"></rect>
+                                <rect x="14" y="7" width="3" height="3"></rect>
+                                <rect x="7" y="14" width="3" height="3"></rect>
+                                <rect x="14" y="14" width="3" height="3"></rect>
+                            </svg><br>
+                            Click Generate to create a 6-tap provisioning QR code for Android Factory Reset setup.
+                        </div>
+                        <img id="qrImage" class="qr-image" alt="Provisioning QR Code">
+                    </div>
+
+                    <div id="payloadBox" class="payload-box"></div>
+                    <div id="resultActions" class="result-actions">
+                        <button type="button" class="btn btn-outline" onclick="copyTokenText()" id="copyTokenBtn">Copy Token</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-head">
+            <div class="card-icon" style="background:#e0f2fe; color:#0369a1;">ℹ️</div>
+            <div class="card-title">How to Provision</div>
+        </div>
+        <div class="card-body">
+            <h3 style="font-size: 15px; margin-bottom: 8px;">QR Code Method (Company Owned)</h3>
+            <ol style="margin-left: 20px; font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6;">
+                <li>Factory reset the Android device.</li>
+                <li>Tap the welcome screen exactly <strong>6 times</strong> in the same spot.</li>
+                <li>Connect to Wi-Fi if prompted.</li>
+                <li>Scan the generated QR code above.</li>
+                <li>The device will automatically download the agent and enroll.</li>
+            </ol>
+
+            <h3 style="font-size: 15px; margin-bottom: 8px;">Token Method (BYOD / App Installation)</h3>
+            <ol style="margin-left: 20px; font-size: 14px; color: var(--muted); line-height: 1.6;">
+                <li>Install the EDM companion application directly on the device.</li>
+                <li>Open the app and select "Enroll Device".</li>
+                <li>Enter or paste the token text generated by clicking "Generate Token".</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentToken = '';
+
+    document.getElementById('provisioningForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const payload = {
+            maxUses: parseInt(document.getElementById('maxUses').value) || 1,
+            ttlHours: parseInt(document.getElementById('ttlHours').value) || 24,
+            notes: document.getElementById('notes').value
+        };
+
+        const generateBtn = e.target.querySelector('button[type="submit"]');
+        const origText = generateBtn.textContent;
+        generateBtn.textContent = 'Generating...';
+        generateBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/admin/provisioning/qr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Failed to generate QR');
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+            document.getElementById('qrPlaceholder').style.display = 'none';
+            document.getElementById('payloadBox').style.display = 'none';
+            
+            const qrImg = document.getElementById('qrImage');
+            qrImg.src = url;
+            qrImg.style.display = 'block';
+            
+            document.getElementById('resultActions').style.display = 'flex';
+            document.getElementById('copyTokenBtn').style.display = 'none';
+
+        } catch (err) {
+            alert('Error generating QR code. See console.');
+            console.error(err);
+        } finally {
+            generateBtn.textContent = origText;
+            generateBtn.disabled = false;
+        }
+    });
+
+    async function generatePayload() {
+        const payload = {
+            maxUses: parseInt(document.getElementById('maxUses').value) || 1,
+            ttlHours: parseInt(document.getElementById('ttlHours').value) || 24,
+            notes: document.getElementById('notes').value
+        };
+
+        try {
+            const response = await fetch('/api/admin/provisioning/payload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Failed to generate token');
+
+            const data = await response.json();
+            
+            document.getElementById('qrPlaceholder').style.display = 'none';
+            document.getElementById('qrImage').style.display = 'none';
+            
+            const pbox = document.getElementById('payloadBox');
+            pbox.textContent = JSON.stringify(data, null, 2);
+            pbox.style.display = 'block';
+
+            currentToken = data.enrollmentToken;
+            
+            document.getElementById('resultActions').style.display = 'flex';
+            document.getElementById('copyTokenBtn').style.display = 'inline-flex';
+
+        } catch (err) {
+            alert('Error generating token.');
+            console.error(err);
+        }
+    }
+
+    async function copyTokenText() {
+        if (!currentToken) return;
+        try {
+            await navigator.clipboard.writeText(currentToken);
+            const btn = document.getElementById('copyTokenBtn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy Token', 1500);
+        } catch (err) {
+            alert('Failed to copy token');
+        }
+    }
+</script>
+
+</body>
+</html>
